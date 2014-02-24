@@ -297,33 +297,17 @@ class Card(models.Model):
             self.get_card_type_display(), self.last_four_digits
         )
 
-    def charge(self, amount, billing_address, delivery_address, customer_email, client_ip_address=None,
+    def charge(self, amount, description, billing_address, delivery_address, customer_email, client_ip_address=None,
         repeat_payment=False, cv2=None):
-
-        # Generate transaction
-        tx = SagePayTransaction(
-            amount=amount,
-            currency=settings.CURRENCY,
-            tx_type=1, # Payment
-            client_ip_address=client_ip_address
-        )
-        tx.save()
-
-        # SagePay: If you have a NON UK postcode you should enter 000
-        if not billing_postcode:
-            billing_postcode = '000'
-        if not delivery_postcode:
-            delivery_postcode = '000'
 
         # Charge card at SagePay
         raw_params = {
             'VPSProtocol': '2.23',
             'TxType': 'PAYMENT',
             'Vendor': settings.VENDOR,
-            'VendorTxCode': tx.id,
             'Amount': amount,
             'Currency': settings.CURRENCY,
-            'Description': 'Coffee',
+            'Description': description,
             'Token': self.token,
             'StoreToken': '1',
             'CustomerEMail': customer_email
