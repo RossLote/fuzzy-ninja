@@ -17,5 +17,5 @@ def watch():
     dirs = ' '.join(dirs)
     cmd = 'when-changed -r {} -c fab prepare_deployment'.format(dirs)
     
-    local(cmd)
+    local(cmd, capture=True)
     
