@@ -2,4 +2,5 @@ from fabric.api import local
 
 def prepare_deployment():
     local('python manage.py test --settings=website.test_settings')
-    local('git add -p && git commit') # or local('hg add && hg commit')
+    msg = raw_input('Your commit message:')
+    local('git add . && git commit -m "{}"'.format(msg)) # or local('hg add && hg commit')
