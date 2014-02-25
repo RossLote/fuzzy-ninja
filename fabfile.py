@@ -2,20 +2,34 @@ from fabric.api import local
 import os
 
 def prepare_deployment():
-    local('python manage.py test --settings=website.test_settings')
-    local('git add . --ignore-removal', capture=True) # or local('hg add && hg commit')
-    msg = raw_input('Your commit message:')
-    local('git commit -m "test"'.format(msg), capture=True)
+    test()
+    msg = raw_input("Enter your commit message:")
+    git(msg)
+
+def test():
+    local('./manage.py test --settings=website.test_settings')
+    
+def git(msg):
+    local('git add . --ignore-removal') # or local('hg add && hg commit')
+    local('git commit -m "test"'.format(msg), capture=False)
     
 def watch():
-    dirs = []
-    files = [f for f in os.listdir('.')]
-    for f in files:
-        if f != '.git':
-            dirs.append(f)
+    files_list = []
+    #dirs = [d for d in os.listdir('.')]
+    for root, dirs, files in os.walk("."):
+        path = root.split('/')
+        if '.git' not in path:
+            for file in files:
+                f, ext = os.path.splitext(file)
+                if ext == '.py':
+                    file_str = '%s/%s' % (root,file)
+                    files_list.append(file_str)
     
-    dirs = ' '.join(dirs)
-    cmd = 'when-changed -r {} -c fab prepare_deployment'.format(dirs)
+    files = ' '.join(files_list)
+    cmd = 'when-changed {} -c fab prepare_deployment'.format(files)
     
-    local(cmd, capture=True)
+    local(cmd)
+    
+def get_files(directory):
+    pass
     
